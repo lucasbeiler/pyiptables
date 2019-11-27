@@ -9,6 +9,7 @@ def resolvePermissoes():
 
 def addRegra(ipFonte, ipDestino, portaFonte, portaDestino, estado, username, acao, protocolo, chain):
     regra = iptc.Rule()
+    
     chains = ["INPUT", "OUTPUT"]
     indiceChain = int(chain)-1
     chain = chains[indiceChain]
@@ -21,6 +22,8 @@ def addRegra(ipFonte, ipDestino, portaFonte, portaDestino, estado, username, aca
     indiceProtocolo = int(protocolo)-1
     protocolo = protocolos[indiceProtocolo]
 
+    if(protocolo):
+        regra.protocol = protocolo
     if(ipFonte):
         regra.src = ipFonte
     if(ipDestino):
@@ -29,8 +32,7 @@ def addRegra(ipFonte, ipDestino, portaFonte, portaDestino, estado, username, aca
         regra.sport = portaFonte
     if(portaDestino):
         regra.dport = portaDestino
-    if(protocolo):
-        regra.protocol = protocolo
+
     if(username):
         match = iptc.Match(regra, "owner")
         match.uid_owner = username
@@ -46,11 +48,14 @@ def addRegra(ipFonte, ipDestino, portaFonte, portaDestino, estado, username, aca
     chain = iptc.Chain(iptc.Table(iptc.Table.FILTER), chain)
     chain.append_rule(regra)
 
+# Inicialização do script e da janela
 resolvePermissoes()
+
 janela = Tk()
 janela.title("PythonTables")
 janela.resizable(False, False)
 
+# Declaração dos elementos da interface
 labelFonte = Label(janela, text="IP+Porta (origem):")
 labelDestino = Label(janela, text="IP+Porta (destino):")
 labelTipo = Label(janela, text="Chain: ")
@@ -66,6 +71,8 @@ edPortaDestino = Entry(janela,)
 edUsuario = Entry(janela,)
 edEstado = Entry(janela,)
 
+
+# RADIO BUTTONS DOS CHAINS
 sv1 = StringVar(janela, "1") 
 tipos = {"INPUT" : "1", 
         "OUTPUT" : "2"}
@@ -73,12 +80,14 @@ tipos = {"INPUT" : "1",
 for (texto, numero) in tipos.items(): 
     Radiobutton(janela, text = texto, variable = sv1, value = numero).grid(row=2, column=numero) 
 
+# RADIO BUTTONS DOS TARGETS
 sv2 = StringVar(janela, "1") 
 opcoes = {"ACCEPT" : "1", 
         "DROP" : "2"} 
 for (texto, numero) in opcoes.items(): 
     Radiobutton(janela, text = texto, variable = sv2, value = numero).grid(row=3, column=numero) 
 
+# RADIO BUTTONS DOS PROTOCOLOS
 sv3 = StringVar(janela, "3") 
 protocolos = {"TCP" : "1", 
         "UDP" : "2",
@@ -86,6 +95,7 @@ protocolos = {"TCP" : "1",
 for (texto, numero) in protocolos.items(): 
     Radiobutton(janela, text = texto, variable = sv3, value = numero).grid(row=4, column=numero) 
 
+# POSICIONAMENTO DOS BOTÕES
 labelFonte.grid(row=0, column=0)
 labelDestino.grid(row=1, column=0)
 labelTipo.grid(row=2, column=0)
@@ -101,6 +111,7 @@ edPortaDestino.grid(row=1, column=2)
 edUsuario.grid(row=5,column=1)
 edEstado.grid(row=6, column=1)
 
+# Obtenção das strings e chamada da função addRegra com passagem de parâmetros
 def botaoAddRegra():
     ipFonte = edIPFonte.get()
     ipDestino = edIPDestino.get()
@@ -111,9 +122,9 @@ def botaoAddRegra():
     chain = sv1.get()
     acao = sv2.get()
     protocolo = sv3.get()
-    #addRegra(ipFonte, ipDestino, portaFonte, portaDestino, estado, username, acao, protocolo, chain):
     addRegra(ipFonte, ipDestino, portaFonte, portaDestino, estado, username, acao, protocolo, chain)
 
-bt = Button(janela, text="Adicionar regra", command=botaoAddRegra)
+# Ação de click no botão, posicionamento do botão e fim da janela
+bt = Button(janela, text="Adicionar regra", command=botaoAddRegra, bg='#0052cc', fg='#ffffff')
 bt.grid(row=8, column=1)
 janela.mainloop()
